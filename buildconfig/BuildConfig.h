@@ -39,9 +39,8 @@
 /**
  * \brief The Config class holds all the build-time information passed from the build system.
  */
-class Config
-{
-public:
+class Config {
+   public:
     Config();
     QString LAUNCHER_NAME;
     QString LAUNCHER_DISPLAYNAME;
@@ -74,19 +73,11 @@ public:
     /// URL for the updater's channel
     QString UPDATER_BASE;
 
-
     /// User-Agent to use.
     QString USER_AGENT;
 
     /// User-Agent to use for uncached requests.
     QString USER_AGENT_UNCACHED;
-
-
-    /// URL for notifications
-    QString NOTIFICATION_URL;
-
-    /// Used for matching notifications
-    QString FULL_VERSION_STR;
 
     /// The git commit hash of this build
     QString GIT_COMMIT;
@@ -124,6 +115,11 @@ public:
     QString MSA_CLIENT_ID;
 
     /**
+     * Client API key for CurseForge
+     */
+    QString CURSEFORGE_API_KEY;
+
+    /**
      * Metadata repository URL prefix
      */
     QString META_URL;
@@ -147,6 +143,12 @@ public:
 
     QString ATL_DOWNLOAD_SERVER_URL = "https://download.nodecdn.net/containers/atl/";
 
+    QString TECHNIC_API_BASE_URL = "https://api.technicpack.net/";
+    /**
+     * The build that is reported to the Technic API.
+     */
+    QString TECHNIC_API_BUILD = "multimc";
+
     /**
      * \brief Converts the Version to a string.
      * \return The version number in string format (major.minor.revision.build).
@@ -155,4 +157,3 @@ public:
 };
 
 extern const Config BuildConfig;
-
