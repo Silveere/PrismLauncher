@@ -4,8 +4,6 @@ project(application)
 
 ######## Sources and headers ########
 
-include (UnitTest)
-
 set(CORE_SOURCES
     # LOGIC - Base classes and infrastructure
     BaseInstaller.h
@@ -90,16 +88,11 @@ set(CORE_SOURCES
     MMCTime.cpp
 )
 
-add_unit_test(FileSystem
-    SOURCES FileSystem_test.cpp
-    LIBS Launcher_logic
-    DATA testdata
-    )
+ecm_add_test(FileSystem_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME FileSystem)  # TODO: needs testdata
 
-add_unit_test(GZip
-    SOURCES GZip_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(GZip_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME GZip)
 
 set(PATHMATCHER_SOURCES
     # Path matchers
@@ -124,10 +117,13 @@ set(NET_SOURCES
     net/NetAction.h
     net/NetJob.cpp
     net/NetJob.h
+    net/NetUtils.h
     net/PasteUpload.cpp
     net/PasteUpload.h
     net/Sink.h
     net/Validator.h
+    net/Upload.cpp
+    net/Upload.h
 )
 
 # Game launch logic
@@ -162,19 +158,13 @@ set(UPDATE_SOURCES
     updater/UpdateChecker.cpp
     updater/DownloadTask.h
     updater/DownloadTask.cpp
+    updater/ExternalUpdater.h
 )
 
-add_unit_test(UpdateChecker
-    SOURCES updater/UpdateChecker_test.cpp
-    LIBS Launcher_logic
-    DATA updater/testdata
-    )
-
-add_unit_test(DownloadTask
-    SOURCES updater/DownloadTask_test.cpp
-    LIBS Launcher_logic
-    DATA updater/testdata
-    )
+set(MAC_UPDATE_SOURCES
+    updater/MacSparkleUpdater.h
+    updater/MacSparkleUpdater.mm
+)
 
 # Backend for the news bar... there's usually no news.
 set(NEWS_SOURCES
@@ -322,19 +312,22 @@ set(MINECRAFT_SOURCES
     minecraft/WorldList.h
     minecraft/WorldList.cpp
 
+    minecraft/mod/MetadataHandler.h
     minecraft/mod/Mod.h
     minecraft/mod/Mod.cpp
     minecraft/mod/ModDetails.h
     minecraft/mod/ModFolderModel.h
     minecraft/mod/ModFolderModel.cpp
-    minecraft/mod/ModFolderLoadTask.h
-    minecraft/mod/ModFolderLoadTask.cpp
-    minecraft/mod/LocalModParseTask.h
-    minecraft/mod/LocalModParseTask.cpp
     minecraft/mod/ResourcePackFolderModel.h
     minecraft/mod/ResourcePackFolderModel.cpp
     minecraft/mod/TexturePackFolderModel.h
     minecraft/mod/TexturePackFolderModel.cpp
+    minecraft/mod/tasks/ModFolderLoadTask.h
+    minecraft/mod/tasks/ModFolderLoadTask.cpp
+    minecraft/mod/tasks/LocalModParseTask.h
+    minecraft/mod/tasks/LocalModParseTask.cpp
+    minecraft/mod/tasks/LocalModUpdateTask.h
+    minecraft/mod/tasks/LocalModUpdateTask.cpp
 
     # Assets
     minecraft/AssetsUtils.h
@@ -352,10 +345,8 @@ set(MINECRAFT_SOURCES
     mojang/PackageManifest.cpp
     minecraft/Agent.h)
 
-add_unit_test(GradleSpecifier
-    SOURCES minecraft/GradleSpecifier_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(minecraft/GradleSpecifier_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME GradleSpecifier)
 
 if(BUILD_TESTING)
     add_executable(PackageManifest
@@ -363,7 +354,7 @@ if(BUILD_TESTING)
     )
     target_link_libraries(PackageManifest
         Launcher_logic
-        Qt5::Test
+        Qt${QT_VERSION_MAJOR}::Test
     )
     target_include_directories(PackageManifest
         PRIVATE ../cmake/UnitTest/
@@ -375,28 +366,20 @@ if(BUILD_TESTING)
     )
 endif()
 
-add_unit_test(MojangVersionFormat
-    SOURCES minecraft/MojangVersionFormat_test.cpp
-    LIBS Launcher_logic
-    DATA minecraft/testdata
-    )
+# TODO: needs minecraft/testdata
+ecm_add_test(minecraft/MojangVersionFormat_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME MojangVersionFormat)
 
-add_unit_test(Library
-    SOURCES minecraft/Library_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(minecraft/Library_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME Library)
 
 # FIXME: shares data with FileSystem test
-add_unit_test(ModFolderModel
-    SOURCES minecraft/mod/ModFolderModel_test.cpp
-    DATA testdata
-    LIBS Launcher_logic
-    )
+# TODO: needs testdata
+ecm_add_test(minecraft/mod/ModFolderModel_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME ModFolderModel)
 
-add_unit_test(ParseUtils
-    SOURCES minecraft/ParseUtils_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(minecraft/ParseUtils_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME ParseUtils)
 
 # the screenshots feature
 set(SCREENSHOTS_SOURCES
@@ -411,14 +394,16 @@ set(TASKS_SOURCES
     # Tasks
     tasks/Task.h
     tasks/Task.cpp
+    tasks/ConcurrentTask.h
+    tasks/ConcurrentTask.cpp
     tasks/SequentialTask.h
     tasks/SequentialTask.cpp
+    tasks/MultipleOptionsTask.h
+    tasks/MultipleOptionsTask.cpp
 )
 
-add_unit_test(Task
-    SOURCES tasks/Task_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(tasks/Task_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME Task)
 
 set(SETTINGS_SOURCES
     # Settings
@@ -436,10 +421,8 @@ set(SETTINGS_SOURCES
     settings/SettingsObject.h
 )
 
-add_unit_test(INIFile
-    SOURCES settings/INIFile_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(settings/INIFile_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME INIFile)
 
 set(JAVA_SOURCES
     java/JavaChecker.h
@@ -456,10 +439,8 @@ set(JAVA_SOURCES
     java/JavaVersion.cpp
 )
 
-add_unit_test(JavaVersion
-    SOURCES java/JavaVersion_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(java/JavaVersion_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME JavaVersion)
 
 set(TRANSLATIONS_SOURCES
     translations/TranslationsModel.h
@@ -497,11 +478,20 @@ set(META_SOURCES
 )
 
 set(API_SOURCES
+    modplatform/ModIndex.h
+    modplatform/ModIndex.cpp
+
     modplatform/ModAPI.h
 
+    modplatform/EnsureMetadataTask.h
+    modplatform/EnsureMetadataTask.cpp
+
+    modplatform/CheckUpdateTask.h
+
     modplatform/flame/FlameAPI.h
+    modplatform/flame/FlameAPI.cpp
     modplatform/modrinth/ModrinthAPI.h
-    
+    modplatform/modrinth/ModrinthAPI.cpp
     modplatform/helpers/NetworkModAPI.h
     modplatform/helpers/NetworkModAPI.cpp
 )
@@ -527,11 +517,17 @@ set(FLAME_SOURCES
     modplatform/flame/PackManifest.cpp
     modplatform/flame/FileResolvingTask.h
     modplatform/flame/FileResolvingTask.cpp
+    modplatform/flame/FlameCheckUpdate.cpp
+    modplatform/flame/FlameCheckUpdate.h
 )
 
 set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthPackIndex.cpp
     modplatform/modrinth/ModrinthPackIndex.h
+    modplatform/modrinth/ModrinthPackManifest.cpp
+    modplatform/modrinth/ModrinthPackManifest.h
+    modplatform/modrinth/ModrinthCheckUpdate.cpp
+    modplatform/modrinth/ModrinthCheckUpdate.h
 )
 
 set(MODPACKSCH_SOURCES
@@ -540,6 +536,15 @@ set(MODPACKSCH_SOURCES
     modplatform/modpacksch/FTBPackManifest.h
     modplatform/modpacksch/FTBPackManifest.cpp
 )
+
+set(PACKWIZ_SOURCES
+    modplatform/packwiz/Packwiz.h
+    modplatform/packwiz/Packwiz.cpp
+)
+
+# TODO: needs modplatform/packwiz/testdata
+ecm_add_test(modplatform/packwiz/Packwiz_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME Packwiz)
 
 set(TECHNIC_SOURCES
     modplatform/technic/SingleZipPackInstallTask.h
@@ -559,12 +564,12 @@ set(ATLAUNCHER_SOURCES
     modplatform/atlauncher/ATLPackInstallTask.h
     modplatform/atlauncher/ATLPackManifest.cpp
     modplatform/atlauncher/ATLPackManifest.h
+    modplatform/atlauncher/ATLShareCode.cpp
+    modplatform/atlauncher/ATLShareCode.h
 )
 
-add_unit_test(Index
-    SOURCES meta/Index_test.cpp
-    LIBS Launcher_logic
-    )
+ecm_add_test(meta/Index_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME Index)
 
 ################################ COMPILE ################################
 
@@ -592,9 +597,14 @@ set(LOGIC_SOURCES
     ${FLAME_SOURCES}
     ${MODRINTH_SOURCES}
     ${MODPACKSCH_SOURCES}
+    ${PACKWIZ_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
 )
+
+if(APPLE)
+    set (LOGIC_SOURCES ${LOGIC_SOURCES} ${MAC_UPDATE_SOURCES})
+endif()
 
 SET(LAUNCHER_SOURCES
     # Application base
@@ -657,6 +667,8 @@ SET(LAUNCHER_SOURCES
     ui/setupwizard/JavaWizardPage.h
     ui/setupwizard/LanguageWizardPage.cpp
     ui/setupwizard/LanguageWizardPage.h
+    ui/setupwizard/PasteWizardPage.cpp
+    ui/setupwizard/PasteWizardPage.h
 
     # GUI - themes
     ui/themes/FusionTheme.cpp
@@ -689,6 +701,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/BasePageProvider.h
 
     # GUI - instance pages
+    ui/pages/instance/ExternalResourcesPage.cpp
+    ui/pages/instance/ExternalResourcesPage.h
     ui/pages/instance/GameOptionsPage.cpp
     ui/pages/instance/GameOptionsPage.h
     ui/pages/instance/VersionPage.cpp
@@ -772,6 +786,11 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/flame/FlameModPage.cpp
     ui/pages/modplatform/flame/FlameModPage.h
 
+    ui/pages/modplatform/modrinth/ModrinthPage.cpp
+    ui/pages/modplatform/modrinth/ModrinthPage.h
+    ui/pages/modplatform/modrinth/ModrinthModel.cpp
+    ui/pages/modplatform/modrinth/ModrinthModel.h
+
     ui/pages/modplatform/technic/TechnicModel.cpp
     ui/pages/modplatform/technic/TechnicModel.h
     ui/pages/modplatform/technic/TechnicPage.cpp
@@ -780,10 +799,10 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/ImportPage.cpp
     ui/pages/modplatform/ImportPage.h
 
-    ui/pages/modplatform/modrinth/ModrinthModel.cpp
-    ui/pages/modplatform/modrinth/ModrinthModel.h
-    ui/pages/modplatform/modrinth/ModrinthPage.cpp
-    ui/pages/modplatform/modrinth/ModrinthPage.h
+    ui/pages/modplatform/modrinth/ModrinthModModel.cpp
+    ui/pages/modplatform/modrinth/ModrinthModModel.h
+    ui/pages/modplatform/modrinth/ModrinthModPage.cpp
+    ui/pages/modplatform/modrinth/ModrinthModPage.h
 
     # GUI - dialogs
     ui/dialogs/AboutDialog.cpp
@@ -812,6 +831,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/NewComponentDialog.h
     ui/dialogs/NewInstanceDialog.cpp
     ui/dialogs/NewInstanceDialog.h
+    ui/dialogs/NewsDialog.cpp
+    ui/dialogs/NewsDialog.h
     ui/pagedialog/PageDialog.cpp
     ui/pagedialog/PageDialog.h
     ui/dialogs/ProgressDialog.cpp
@@ -826,6 +847,12 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/SkinUploadDialog.h
     ui/dialogs/ModDownloadDialog.cpp
     ui/dialogs/ModDownloadDialog.h
+    ui/dialogs/ScrollMessageBox.cpp
+    ui/dialogs/ScrollMessageBox.h
+    ui/dialogs/ChooseProviderDialog.h
+    ui/dialogs/ChooseProviderDialog.cpp
+    ui/dialogs/ModUpdateDialog.cpp
+    ui/dialogs/ModUpdateDialog.h
 
     # GUI - widgets
     ui/widgets/Common.cpp
@@ -880,7 +907,8 @@ SET(LAUNCHER_SOURCES
     ui/instanceview/VisualGroup.h
 )
 
-qt5_wrap_ui(LAUNCHER_UI
+qt_wrap_ui(LAUNCHER_UI
+    ui/setupwizard/PasteWizardPage.ui
     ui/pages/global/AccountListPage.ui
     ui/pages/global/JavaPage.ui
     ui/pages/global/LauncherPage.ui
@@ -888,7 +916,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/global/ProxyPage.ui
     ui/pages/global/MinecraftPage.ui
     ui/pages/global/ExternalToolsPage.ui
-    ui/pages/instance/ModFolderPage.ui
+    ui/pages/instance/ExternalResourcesPage.ui
     ui/pages/instance/NotesPage.ui
     ui/pages/instance/LogPage.ui
     ui/pages/instance/ServersPage.ui
@@ -906,6 +934,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/legacy_ftb/Page.ui
     ui/pages/modplatform/ImportPage.ui
     ui/pages/modplatform/ftb/FtbPage.ui
+    ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
     ui/widgets/InstanceCardWidget.ui
     ui/widgets/CustomCommands.ui
@@ -917,6 +946,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/NewInstanceDialog.ui
     ui/dialogs/UpdateDialog.ui
     ui/dialogs/NewComponentDialog.ui
+    ui/dialogs/NewsDialog.ui
     ui/dialogs/ProfileSelectDialog.ui
     ui/dialogs/SkinUploadDialog.ui
     ui/dialogs/ExportInstanceDialog.ui
@@ -927,9 +957,11 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/LoginDialog.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/ReviewMessageBox.ui
+    ui/dialogs/ScrollMessageBox.ui
+    ui/dialogs/ChooseProviderDialog.ui
 )
 
-qt5_add_resources(LAUNCHER_RESOURCES
+qt_add_resources(LAUNCHER_RESOURCES
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc
@@ -945,7 +977,7 @@ qt5_add_resources(LAUNCHER_RESOURCES
 
 ######## Windows resource files ########
 if(WIN32)
-    set(LAUNCHER_RCS ../${Launcher_Branding_WindowsRC})
+    set(LAUNCHER_RCS ${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_WindowsRC})
 endif()
 
 # Add executable
@@ -953,27 +985,53 @@ add_library(Launcher_logic STATIC ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${LAUNCHE
 target_link_libraries(Launcher_logic
     systeminfo
     Launcher_classparser
+    Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
     optional-bare
     tomlc99
     BuildConfig
     Katabasis
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
+
+if (UNIX AND NOT CYGWIN AND NOT APPLE)
+    target_link_libraries(Launcher_logic
+        gamemode
+    )
+endif()
+
+target_link_libraries(Launcher_logic
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Xml
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::Concurrent
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    ${Launcher_QT_LIBS}
 )
 target_link_libraries(Launcher_logic
-    Qt5::Core
-    Qt5::Xml
-    Qt5::Network
-    Qt5::Concurrent
-    Qt5::Gui
-)
-target_link_libraries(Launcher_logic
-    Launcher_iconfix
     QuaZip::QuaZip
     hoedown
     LocalPeer
     Launcher_rainbow
 )
+if(APPLE)
+    set(CMAKE_MACOSX_RPATH 1)
+    set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks/")
+
+    file(DOWNLOAD ${MACOSX_SPARKLE_DOWNLOAD_URL} ${CMAKE_BINARY_DIR}/Sparkle.tar.xz EXPECTED_HASH SHA256=${MACOSX_SPARKLE_SHA256})
+    file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/Sparkle.tar.xz DESTINATION ${CMAKE_BINARY_DIR}/frameworks/Sparkle)
+
+    find_library(SPARKLE_FRAMEWORK Sparkle "${CMAKE_BINARY_DIR}/frameworks/Sparkle")
+    target_link_libraries(Launcher_logic
+        "-framework AppKit"
+        "-framework Carbon"
+        "-framework Foundation"
+        "-framework ApplicationServices"
+    )
+    target_link_libraries(Launcher_logic ${SPARKLE_FRAMEWORK})
+endif()
 
 target_link_libraries(Launcher_logic)
 
@@ -996,7 +1054,15 @@ install(TARGETS ${Launcher_Name}
     BUNDLE DESTINATION "." COMPONENT Runtime
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR} COMPONENT Runtime
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
+    FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR} COMPONENT Runtime
 )
+
+if (UNIX AND APPLE)
+    # Add Sparkle updater
+    # It has to be copied here instead of just allowing fixup_bundle to install it, otherwise essential parts of
+    # the framework aren't installed
+    install(DIRECTORY ${MACOSX_SPARKLE_DIR}/Sparkle.framework DESTINATION ${FRAMEWORK_DEST_DIR} USE_SOURCE_PERMISSIONS)
+endif()
 
 #### The bundle mess! ####
 # Bundle utilities are used to complete the portable packages - they add all the libraries that would otherwise be missing on the target system.
@@ -1034,6 +1100,14 @@ if(INSTALL_BUNDLE STREQUAL "full")
         if(EXISTS "${QT_PLUGINS_DIR}/styles")
             install(
                 DIRECTORY "${QT_PLUGINS_DIR}/styles"
+                DESTINATION ${PLUGIN_DEST_DIR}
+                COMPONENT Runtime
+            )
+        endif()
+        # TLS plugins (Qt 6 only)
+        if(EXISTS "${QT_PLUGINS_DIR}/tls")
+            install(
+                DIRECTORY "${QT_PLUGINS_DIR}/tls"
                 DESTINATION ${PLUGIN_DEST_DIR}
                 COMPONENT Runtime
             )
@@ -1076,6 +1150,16 @@ if(INSTALL_BUNDLE STREQUAL "full")
                 DESTINATION ${PLUGIN_DEST_DIR}
                 COMPONENT Runtime
                 REGEX "d\\." EXCLUDE
+                REGEX "_debug\\." EXCLUDE
+                REGEX "\\.dSYM" EXCLUDE
+            )
+        endif()
+        # TLS plugins (Qt 6 only)
+        if(EXISTS "${QT_PLUGINS_DIR}/tls")
+            install(
+                DIRECTORY "${QT_PLUGINS_DIR}/tls"
+                DESTINATION ${PLUGIN_DEST_DIR}
+                COMPONENT Runtime
                 REGEX "_debug\\." EXCLUDE
                 REGEX "\\.dSYM" EXCLUDE
             )

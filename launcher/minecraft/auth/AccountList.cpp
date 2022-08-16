@@ -109,8 +109,10 @@ QStringList AccountList::profileNames() const {
 
 void AccountList::addAccount(const MinecraftAccountPtr account)
 {
-    // NOTE: Do not allow adding something that's already there
-    if(m_accounts.contains(account)) {
+    // NOTE: Do not allow adding something that's already there. We shouldn't let it continue
+    // because of the signal / slot connections after this.
+    if (m_accounts.contains(account)) {
+        qDebug() << "Tried to add account that's already on the accounts list!";
         return;
     }
 
@@ -123,6 +125,8 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
     if(profileId.size()) {
         auto existingAccount = findAccountByProfileId(profileId);
         if(existingAccount != -1) {
+            qDebug() << "Replacing old account with a new one with the same profile ID!";
+
             MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
             m_accounts[existingAccount] = account;
             if(m_defaultAccount == existingAccountPtr) {
@@ -138,9 +142,12 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
 
     // if we don't have this profileId yet, add the account to the end
     int row = m_accounts.count();
+    qDebug() << "Inserting account at index" << row;
+
     beginInsertRows(QModelIndex(), row, row);
     m_accounts.append(account);
     endInsertRows();
+
     onListChanged();
 }
 
@@ -282,6 +289,10 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             switch (index.column())
             {
+            case ProfileNameColumn: {
+                return account->profileName();
+            }
+
             case NameColumn:
                 return account->accountDisplayString();
 
@@ -300,7 +311,7 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                         return tr("Offline", "Account status");
                     }
                     case AccountState::Online: {
-                        return tr("Online", "Account status");
+                        return tr("Ready", "Account status");
                     }
                     case AccountState::Working: {
                         return tr("Working", "Account status");
@@ -318,10 +329,6 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                         return tr("Gone", "Account status");
                     }
                 }
-            }
-
-            case ProfileNameColumn: {
-                return account->profileName();
             }
 
             case MigrationColumn: {
@@ -349,7 +356,7 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
         case Qt::CheckStateRole:
             switch (index.column())
             {
-                case NameColumn:
+                case ProfileNameColumn:
                     return account == m_defaultAccount ? Qt::Checked : Qt::Unchecked;
             }
 
@@ -365,6 +372,8 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
     case Qt::DisplayRole:
         switch (section)
         {
+        case ProfileNameColumn:
+            return tr("Username");
         case NameColumn:
             return tr("Account");
         case TypeColumn:
@@ -373,8 +382,6 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
             return tr("Status");
         case MigrationColumn:
             return tr("Can Migrate?");
-        case ProfileNameColumn:
-            return tr("Profile");
         default:
             return QVariant();
         }
@@ -382,6 +389,8 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
     case Qt::ToolTipRole:
         switch (section)
         {
+        case ProfileNameColumn:
+            return tr("Minecraft username associated with the account.");
         case NameColumn:
             return tr("User name of the account.");
         case TypeColumn:
@@ -389,9 +398,7 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
         case StatusColumn:
             return tr("Current status of the account.");
         case MigrationColumn:
-            return tr("Can this account migrate to Microsoft account?");
-        case ProfileNameColumn:
-            return tr("Name of the Minecraft profile associated with the account.");
+            return tr("Can this account migrate to a Microsoft account?");
         default:
             return QVariant();
         }

@@ -2,6 +2,7 @@
 /*
  *  PolyMC - Minecraft Launcher
  *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
+ *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,6 +50,7 @@
 #include <QClipboard>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QRegularExpression>
 
 #include <Application.h>
 
@@ -153,7 +155,7 @@ public:
         if (role == Qt::DisplayRole || role == Qt::EditRole)
         {
             QVariant result = sourceModel()->data(mapToSource(proxyIndex), role);
-            return result.toString().remove(QRegExp("\\.png$"));
+            return result.toString().remove(QRegularExpression("\\.png$"));
         }
         if (role == Qt::DecorationRole)
         {
@@ -251,7 +253,7 @@ ScreenshotsPage::ScreenshotsPage(QString path, QWidget *parent)
     m_model.reset(new QFileSystemModel());
     m_filterModel.reset(new FilterModel());
     m_filterModel->setSourceModel(m_model.get());
-    m_model->setFilter(QDir::Files | QDir::Writable | QDir::Readable);
+    m_model->setFilter(QDir::Files);
     m_model->setReadOnly(false);
     m_model->setNameFilters({"*.png"});
     m_model->setNameFilterDisables(false);
@@ -269,7 +271,7 @@ ScreenshotsPage::ScreenshotsPage(QString path, QWidget *parent)
     ui->listView->setViewMode(QListView::IconMode);
     ui->listView->setResizeMode(QListView::Adjust);
     ui->listView->installEventFilter(this);
-    ui->listView->setEditTriggers(0);
+    ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->listView->setItemDelegate(new CenteredEditingDelegate(this));
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listView, &QListView::customContextMenuRequested, this, &ScreenshotsPage::ShowContextMenu);
@@ -341,6 +343,29 @@ void ScreenshotsPage::onItemActivated(QModelIndex index)
     auto info = m_model->fileInfo(index);
     QString fileName = info.absoluteFilePath();
     DesktopServices::openFile(info.absoluteFilePath());
+}
+
+void ScreenshotsPage::onCurrentSelectionChanged(const QItemSelection &selected)
+{
+    bool allReadable = !selected.isEmpty();
+    bool allWritable = !selected.isEmpty();
+
+    for (auto index : selected.indexes())
+    {
+        if (!index.isValid())
+            break;
+        auto info = m_model->fileInfo(index);
+        if (!info.isReadable())
+            allReadable = false;
+        if (!info.isWritable())
+            allWritable = false;
+    }
+
+    ui->actionUpload->setEnabled(allReadable);
+    ui->actionCopy_Image->setEnabled(allReadable);
+    ui->actionCopy_File_s->setEnabled(allReadable);
+    ui->actionDelete->setEnabled(allWritable);
+    ui->actionRename->setEnabled(allWritable);
 }
 
 void ScreenshotsPage::on_actionView_Folder_triggered()
@@ -503,6 +528,8 @@ void ScreenshotsPage::openedImpl()
         if(idx.isValid())
         {
             ui->listView->setModel(m_filterModel.get());
+            connect(ui->listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ScreenshotsPage::onCurrentSelectionChanged);
+            onCurrentSelectionChanged(ui->listView->selectionModel()->selection()); // set initial button enable states
             ui->listView->setRootIndex(m_filterModel->mapFromSource(idx));
         }
         else

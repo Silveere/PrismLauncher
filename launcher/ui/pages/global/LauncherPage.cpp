@@ -90,6 +90,13 @@ LauncherPage::LauncherPage(QWidget *parent) : QWidget(parent), ui(new Ui::Launch
         {
             APPLICATION->updateChecker()->updateChanList(false);
         }
+
+        if (APPLICATION->updateChecker()->getExternalUpdater())
+        {
+            ui->updateChannelComboBox->setVisible(false);
+            ui->updateChannelDescLabel->setVisible(false);
+            ui->updateChannelLabel->setVisible(false);
+        }
     }
     else
     {
@@ -97,13 +104,6 @@ LauncherPage::LauncherPage(QWidget *parent) : QWidget(parent), ui(new Ui::Launch
     }
     connect(ui->fontSizeBox, SIGNAL(valueChanged(int)), SLOT(refreshFontPreview()));
     connect(ui->consoleFont, SIGNAL(currentFontChanged(QFont)), SLOT(refreshFontPreview()));
-
-    //move mac data button
-    QFile file(QDir::current().absolutePath() + "/dontmovemacdata");
-    if (!file.exists())
-    {
-        ui->migrateDataFolderMacBtn->setVisible(false);
-    }
 }
 
 LauncherPage::~LauncherPage()
@@ -190,12 +190,10 @@ void LauncherPage::on_modsDirBrowseBtn_clicked()
         ui->modsDirTextBox->setText(cooked_dir);
     }
 }
-void LauncherPage::on_migrateDataFolderMacBtn_clicked()
+
+void LauncherPage::on_metadataDisableBtn_clicked()
 {
-    QFile file(QDir::current().absolutePath() + "/dontmovemacdata");
-    file.remove();
-    QProcess::startDetached(qApp->arguments()[0]);
-    qApp->quit();
+    ui->metadataWarningLabel->setHidden(!ui->metadataDisableBtn->isChecked());
 }
 
 void LauncherPage::refreshUpdateChannelList()
@@ -275,7 +273,16 @@ void LauncherPage::applySettings()
     auto s = APPLICATION->settings();
 
     // Updates
-    s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
+    if (BuildConfig.UPDATER_ENABLED && APPLICATION->updateChecker()->getExternalUpdater())
+    {
+        APPLICATION->updateChecker()->getExternalUpdater()->setAutomaticallyChecksForUpdates(
+                ui->autoUpdateCheckBox->isChecked());
+    }
+    else
+    {
+        s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
+    }
+
     s->set("UpdateChannel", m_currentUpdateChannel);
     auto original = s->get("IconTheme").toString();
     //FIXME: make generic
@@ -352,12 +359,24 @@ void LauncherPage::applySettings()
         s->set("InstSortMode", "Name");
         break;
     }
+
+    // Mods
+    s->set("ModMetadataDisabled", ui->metadataDisableBtn->isChecked());
 }
 void LauncherPage::loadSettings()
 {
     auto s = APPLICATION->settings();
     // Updates
-    ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
+    if (BuildConfig.UPDATER_ENABLED && APPLICATION->updateChecker()->getExternalUpdater())
+    {
+        ui->autoUpdateCheckBox->setChecked(
+                APPLICATION->updateChecker()->getExternalUpdater()->getAutomaticallyChecksForUpdates());
+    }
+    else
+    {
+        ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
+    }
+
     m_currentUpdateChannel = s->get("UpdateChannel").toString();
     //FIXME: make generic
     auto theme = s->get("IconTheme").toString();
@@ -454,6 +473,10 @@ void LauncherPage::loadSettings()
     {
         ui->sortByNameBtn->setChecked(true);
     }
+
+    // Mods
+    ui->metadataDisableBtn->setChecked(s->get("ModMetadataDisabled").toBool());
+    ui->metadataWarningLabel->setHidden(!ui->metadataDisableBtn->isChecked());
 }
 
 void LauncherPage::refreshFontPreview()

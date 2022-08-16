@@ -54,7 +54,7 @@
           <item>
            <widget class="QCheckBox" name="autoUpdateCheckBox">
             <property name="text">
-             <string>Check for updates on start?</string>
+             <string>Check for updates automatically</string>
             </property>
            </widget>
           </item>
@@ -94,18 +94,12 @@
           <string>Folders</string>
          </property>
          <layout class="QGridLayout" name="foldersBoxLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelInstDir">
+          <item row="1" column="2">
+           <widget class="QToolButton" name="modsDirBrowseBtn">
             <property name="text">
-             <string>I&amp;nstances:</string>
-            </property>
-            <property name="buddy">
-             <cstring>instDirTextBox</cstring>
+             <string notr="true">...</string>
             </property>
            </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="instDirTextBox"/>
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="instDirBrowseBtn">
@@ -114,28 +108,15 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="labelModsDir">
-            <property name="text">
-             <string>&amp;Mods:</string>
-            </property>
-            <property name="buddy">
-             <cstring>modsDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="modsDirTextBox"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="modsDirBrowseBtn">
+          <item row="2" column="2">
+           <widget class="QToolButton" name="iconsDirBrowseBtn">
             <property name="text">
              <string notr="true">...</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="iconsDirTextBox"/>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="instDirTextBox"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="labelIconsDir">
@@ -147,10 +128,29 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="iconsDirBrowseBtn">
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="modsDirTextBox"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelInstDir">
             <property name="text">
-             <string notr="true">...</string>
+             <string>I&amp;nstances:</string>
+            </property>
+            <property name="buddy">
+             <cstring>instDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="iconsDirTextBox"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelModsDir">
+            <property name="text">
+             <string>&amp;Mods:</string>
+            </property>
+            <property name="buddy">
+             <cstring>modsDirTextBox</cstring>
             </property>
            </widget>
           </item>
@@ -158,10 +158,32 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="migrateDataFolderMacBtn">
-         <property name="text">
-          <string>Move the data to new location (will restart the launcher)</string>
+        <widget class="QGroupBox" name="modsBox">
+         <property name="title">
+          <string>Mods</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QCheckBox" name="metadataDisableBtn">
+            <property name="toolTip">
+             <string>Disable using metadata provided by mod providers (like Modrinth or Curseforge) for mods.</string>
+            </property>
+            <property name="text">
+             <string>Disable using metadata for mods?</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="metadataWarningLabel">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#f5c211;&quot;&gt;Warning&lt;/span&gt;&lt;span style=&quot; color:#f5c211;&quot;&gt;: Disabling mod metadata may also disable some upcoming QoL features, such as mod updating!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -196,7 +218,7 @@
           <item>
            <widget class="QRadioButton" name="sortLastLaunchedBtn">
             <property name="text">
-             <string>By &amp;last launched</string>
+             <string>&amp;By last launched</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">sortingModeGroup</string>
@@ -293,7 +315,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Colors</string>
+             <string>&amp;Colors</string>
             </property>
             <property name="buddy">
              <cstring>themeComboBoxColors</cstring>
@@ -334,7 +356,7 @@
              <string>The menubar is more friendly for keyboard-driven interaction.</string>
             </property>
             <property name="text">
-             <string>Replace toolbar with menubar</string>
+             <string>&amp;Replace toolbar with menubar</string>
             </property>
            </widget>
           </item>
@@ -370,21 +392,21 @@
           <item>
            <widget class="QCheckBox" name="showConsoleCheck">
             <property name="text">
-             <string>Show console while the game is running?</string>
+             <string>Show console while the game is &amp;running?</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="autoCloseConsoleCheck">
             <property name="text">
-             <string>Automatically close console when the game quits?</string>
+             <string>&amp;Automatically close console when the game quits?</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="showConsoleErrorCheck">
             <property name="text">
-             <string>Show console when the game crashes?</string>
+             <string>Show console when the game &amp;crashes?</string>
             </property>
            </widget>
           </item>
@@ -394,13 +416,13 @@
        <item>
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
-          <string>History limit</string>
+          <string>&amp;History limit</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="1" column="0">
            <widget class="QCheckBox" name="checkStopLogging">
             <property name="text">
-             <string>Stop logging when log overflows</string>
+             <string>&amp;Stop logging when log overflows</string>
             </property>
            </widget>
           </item>
@@ -441,7 +463,7 @@
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Console font</string>
+          <string>Console &amp;font</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="1" column="0" colspan="2">

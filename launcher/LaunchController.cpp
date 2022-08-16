@@ -93,7 +93,7 @@ void LaunchController::decideAccount()
         auto reply = CustomMessageBox::selectable(
             m_parentWidget,
             tr("No Accounts"),
-            tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
+            tr("In order to play Minecraft, you must have at least one Mojang or Microsoft "
                "account logged in. "
                "Would you like to open the account manager to add an account now?"),
             QMessageBox::Information,
@@ -104,6 +104,11 @@ void LaunchController::decideAccount()
         {
             // Open the account manager.
             APPLICATION->ShowGlobalSettings(m_parentWidget, "accounts");
+        }
+        else if (reply == QMessageBox::No)
+        {
+            // Do not open "profile select" dialog.
+            return;
         }
     }
 

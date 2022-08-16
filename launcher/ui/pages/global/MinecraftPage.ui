@@ -51,7 +51,7 @@
           <item>
            <widget class="QCheckBox" name="maximizedCheckBox">
             <property name="text">
-             <string>Start Minecraft maximized?</string>
+             <string>Start Minecraft &amp;maximized?</string>
             </property>
            </widget>
           </item>
@@ -60,7 +60,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="labelWindowHeight">
               <property name="text">
-               <string>Window hei&amp;ght:</string>
+               <string>Window &amp;height:</string>
               </property>
               <property name="buddy">
                <cstring>windowHeightSpinBox</cstring>
@@ -70,7 +70,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="labelWindowWidth">
               <property name="text">
-               <string>W&amp;indow width:</string>
+               <string>Window &amp;width:</string>
               </property>
               <property name="buddy">
                <cstring>windowWidthSpinBox</cstring>
@@ -120,14 +120,53 @@
           <item>
            <widget class="QCheckBox" name="useNativeGLFWCheck">
             <property name="text">
-             <string>Use system installation of GLFW</string>
+             <string>Use system installation of &amp;GLFW</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="useNativeOpenALCheck">
             <property name="text">
-             <string>Use system installation of OpenAL</string>
+             <string>Use system installation of &amp;OpenAL</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="perfomanceGroupBox">
+         <property name="title">
+          <string>Performance</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QCheckBox" name="enableFeralGamemodeCheck">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable Feral Interactive's GameMode, to potentially improve gaming performance.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Enable Feral GameMode</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="enableMangoHud">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable MangoHud's advanced performance overlay.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Enable MangoHud</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="useDiscreteGpuCheck">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the discrete GPU instead of the primary GPU.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Use discrete GPU</string>
             </property>
            </widget>
           </item>
@@ -143,21 +182,21 @@
           <item>
            <widget class="QCheckBox" name="showGameTime">
             <property name="text">
-             <string>Show time spent playing instances</string>
+             <string>Show time spent &amp;playing instances</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="showGlobalGameTime">
             <property name="text">
-             <string>Show time spent playing across all instances</string>
+             <string>Show time spent playing across &amp;all instances</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="recordGameTime">
             <property name="text">
-             <string>Record time spent playing instances</string>
+             <string>&amp;Record time spent playing instances</string>
             </property>
            </widget>
           </item>
@@ -176,20 +215,20 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The launcher will automatically reopen when the game crashes or exits.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Close the launcher after game window opens</string>
+             <string>&amp;Close the launcher after game window opens</string>
             </property>
            </widget>
           </item>
           <item>
-            <widget class="QCheckBox" name="quitAfterGameStopCheck">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The launcher will automatically quit after the game exits or crashes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Quit the launcher after game window closes</string>
-             </property>
-            </widget>
-           </item>
+           <widget class="QCheckBox" name="quitAfterGameStopCheck">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The launcher will automatically quit after the game exits or crashes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>&amp;Quit the launcher after game window closes</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -218,6 +257,9 @@
   <tabstop>windowHeightSpinBox</tabstop>
   <tabstop>useNativeGLFWCheck</tabstop>
   <tabstop>useNativeOpenALCheck</tabstop>
+  <tabstop>enableFeralGamemodeCheck</tabstop>
+  <tabstop>enableMangoHud</tabstop>
+  <tabstop>useDiscreteGpuCheck</tabstop>
  </tabstops>
  <resources/>
  <connections/>

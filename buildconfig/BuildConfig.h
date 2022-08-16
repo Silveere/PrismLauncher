@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  PolyMC - Minecraft Launcher
+ *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -73,6 +74,12 @@ class Config {
     /// URL for the updater's channel
     QString UPDATER_BASE;
 
+    /// The public key used to sign releases for the Sparkle updater appcast
+    QString MAC_SPARKLE_PUB_KEY;
+
+    /// URL for the Sparkle updater's appcast
+    QString MAC_SPARKLE_APPCAST_URL;
+
     /// User-Agent to use.
     QString USER_AGENT;
 
@@ -81,6 +88,9 @@ class Config {
 
     /// The git commit hash of this build
     QString GIT_COMMIT;
+
+    /// The git tag of this build
+    QString GIT_TAG;
 
     /// The git refspec of this build
     QString GIT_REFSPEC;
@@ -117,7 +127,7 @@ class Config {
     /**
      * Client API key for CurseForge
      */
-    QString CURSEFORGE_API_KEY;
+    QString FLAME_API_KEY;
 
     /**
      * Metadata repository URL prefix
@@ -142,6 +152,7 @@ class Config {
     QString LEGACY_FTB_CDN_BASE_URL = "https://dist.creeper.host/FTB2/";
 
     QString ATL_DOWNLOAD_SERVER_URL = "https://download.nodecdn.net/containers/atl/";
+    QString ATL_API_BASE_URL = "https://api.atlauncher.com/v1/";
 
     QString TECHNIC_API_BASE_URL = "https://api.technicpack.net/";
     /**
@@ -149,6 +160,10 @@ class Config {
      */
     QString TECHNIC_API_BUILD = "multimc";
 
+    QString MODRINTH_STAGING_URL = "https://staging-api.modrinth.com/v2";
+    QString MODRINTH_PROD_URL = "https://api.modrinth.com/v2";
+
+    QString versionString() const;
     /**
      * \brief Converts the Version to a string.
      * \return The version number in string format (major.minor.revision.build).

@@ -1,16 +1,36 @@
-/* Copyright 2013-2021 MultiMC Contributors
+// SPDX-License-Identifier: GPL-3.0-only
+/*
+ *  PolyMC - Minecraft Launcher
+ *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ *      Copyright 2013-2021 MultiMC Contributors
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
  */
 
 #include <QDir>
@@ -37,6 +57,10 @@
 #include "FileSystem.h"
 #include "ExponentialSeries.h"
 #include "WatchLock.h"
+
+#ifdef Q_OS_WIN32
+#include <Windows.h>
+#endif
 
 const static int GROUP_FILE_FORMAT_VERSION = 1;
 
@@ -132,7 +156,7 @@ QVariant InstanceList::data(const QModelIndex &index, int role) const
     {
     case InstancePointerRole:
     {
-        QVariant v = qVariantFromValue((void *)pdata);
+        QVariant v = QVariant::fromValue((void *)pdata);
         return v;
     }
     case InstanceIDRole:
@@ -248,7 +272,7 @@ void InstanceList::setInstanceGroup(const InstanceId& id, const GroupId& name)
 
 QStringList InstanceList::getGroups()
 {
-    return m_groupNameCache.toList();
+    return m_groupNameCache.values();
 }
 
 void InstanceList::deleteGroup(const QString& name)
@@ -349,7 +373,11 @@ QList< InstanceId > InstanceList::discoverInstances()
         out.append(id);
         qDebug() << "Found instance ID" << id;
     }
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    instanceSet = QSet<QString>(out.begin(), out.end());
+#else
     instanceSet = out.toSet();
+#endif
     m_instancesProbed = true;
     return out;
 }
@@ -543,8 +571,20 @@ InstancePtr InstanceList::loadInstance(const InstanceId& id)
     auto instanceRoot = FS::PathCombine(m_instDir, id);
     auto instanceSettings = std::make_shared<INISettingsObject>(FS::PathCombine(instanceRoot, "instance.cfg"));
     InstancePtr inst;
-    // TODO: Handle incompatible instances
-    inst.reset(new MinecraftInstance(m_globalSettings, instanceSettings, instanceRoot));
+
+    instanceSettings->registerSetting("InstanceType", "");
+
+    QString inst_type = instanceSettings->get("InstanceType").toString();
+
+    // NOTE: Some PolyMC versions didn't save the InstanceType properly. We will just bank on the probability that this is probably a OneSix instance
+    if (inst_type == "OneSix" || inst_type.isEmpty())
+    {
+        inst.reset(new MinecraftInstance(m_globalSettings, instanceSettings, instanceRoot));
+    }
+    else
+    {
+        inst.reset(new NullInstance(m_globalSettings, instanceSettings, instanceRoot));
+    }
     qDebug() << "Loaded instance " << inst->name() << " from " << inst->instanceRoot();
     return inst;
 }
@@ -851,13 +891,18 @@ Task * InstanceList::wrapInstanceTask(InstanceTask * task)
 QString InstanceList::getStagedInstancePath()
 {
     QString key = QUuid::createUuid().toString();
-    QString relPath = FS::PathCombine("_LAUNCHER_TEMP/" , key);
+    QString tempDir = ".LAUNCHER_TEMP/";
+    QString relPath = FS::PathCombine(tempDir, key);
     QDir rootPath(m_instDir);
     auto path = FS::PathCombine(m_instDir, relPath);
     if(!rootPath.mkpath(relPath))
     {
         return QString();
     }
+#ifdef Q_OS_WIN32
+    auto tempPath = FS::PathCombine(m_instDir, tempDir);
+    SetFileAttributesA(tempPath.toStdString().c_str(), FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED);
+#endif
     return path;
 }
 
