@@ -494,6 +494,8 @@ set(API_SOURCES
     modplatform/modrinth/ModrinthAPI.cpp
     modplatform/helpers/NetworkModAPI.h
     modplatform/helpers/NetworkModAPI.cpp
+    modplatform/helpers/HashUtils.h
+    modplatform/helpers/HashUtils.cpp
 )
 
 set(FTB_SOURCES
@@ -988,7 +990,6 @@ target_link_libraries(Launcher_logic
     Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
-    optional-bare
     tomlc99
     BuildConfig
     Katabasis
